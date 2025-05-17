@@ -50,12 +50,14 @@ def match_resumes():
 
     for resume in resume_files:
         filename = resume.filename
-        filepath = os.path.join("uploads", filename)
-        resume.save(filepath)
+        pdf_bytes = resume.read()
 
-        text = extract_text_from_pdf(filepath)
+        with fitz.open(stream=pdf_bytes, filetype="pdf") as doc:
+            text = ""
+            for page in doc:
+                text += page.get_text()
+
         processed_text = preprocess_text(text)
-
         resume_texts.append(processed_text)
         resume_names.append(filename)
 
@@ -72,4 +74,5 @@ def match_resumes():
 
 if __name__ == '__main__':
     os.makedirs("uploads", exist_ok=True)
+
     app.run(debug=True)
